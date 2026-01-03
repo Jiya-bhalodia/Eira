@@ -1,0 +1,299 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
+
+body {
+  background: #f7faf9;
+  color: #123;
+}
+
+/* NAVBAR */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 40px;
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.nav-links a {
+  margin-right: 20px;
+  text-decoration: none;
+  color: #123;
+}
+
+.primary-btn {
+  background: #1f7a5c;
+  color: white;
+  border: none;
+  padding: 15px 23px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* HERO */
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 80px 60px;
+}
+
+.hero-text {
+  max-width: 520px;
+}
+
+.hero-text h1 {
+  font-size: 60px;
+}
+
+.hero-text h2 {
+  margin: 10px 0;
+  color: #1f7a5c;
+  font-size: 32px;        
+  font-weight: 700;
+}
+
+.hero-text p {
+  margin: 20px 0;
+  line-height: 1.6;
+  color: #444;
+  font-size: 18px;
+}
+
+.hero-image img {
+  width: 420px;
+  border-radius: 18px;
+  margin-right: 50px;
+  margin-top: 88px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+}
+
+/* SECTIONS */
+.section {
+  padding: 80px 60px;
+  text-align: center;
+}
+
+.subtitle {
+  margin: 10px 0 30px;
+  color: #555;
+}
+
+.card {
+  background: white;
+  max-width: 420px;
+  margin: auto;
+  padding: 30px;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.result-box {
+  margin-top: 20px;
+  background: #eef7f3;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+/* CHAT */
+.chat-box {
+  max-width: 520px;
+  margin: auto;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  padding: 20px;
+}
+
+.messages {
+  height: 300px;
+  overflow-y: auto;
+}
+
+.bot-msg, .user-msg {
+  margin-bottom: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  max-width: 80%;
+}
+
+.bot-msg {
+  background: #e8f5f0;
+  text-align: left;
+}
+
+.user-msg {
+  background: #1f7a5c;
+  color: white;
+  margin-left: auto;
+  text-align: right;
+}
+
+.chat-input {
+  display: flex;
+  margin-top: 10px;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.chat-input button {
+  margin-left: 10px;
+  border-radius: 10px;
+  color: white;
+  background-color: #1f7a5c;
+  padding: 10px 16px;
+}
+
+.result-card {
+  margin-top: 20px;
+  padding: 20px;
+  background: #f6fffb;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.result-card h3 {
+  color: #1f7a5c;
+  margin-bottom: 10px;
+}
+
+.result-card h4 {
+  margin-top: 15px;
+  color: #333;
+}
+
+.result-card ul {
+  padding-left: 18px;
+}
+
+.result-card li {
+  margin-bottom: 6px;
+}
+
+/* --------- RESULT UI --------- */
+
+.badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  background: #fff3cd;
+  color: #856404;
+  margin-bottom: 12px;
+}
+
+.confidence {
+  margin-top: 12px;
+  font-weight: 600;
+  color: #1f7a5c;
+}
+
+.conditions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin: 15px 0;
+}
+
+.condition-chip {
+  background: #e8f5f0;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+.product-list li {
+  background: #f3f6f4;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.severity-badge {
+  background: #fdecc8;
+  color: #8a6400;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.condition-chip {
+  background: #e8f5f0;
+  padding: 10px 14px;
+  border-radius: 999px;
+  display: inline-block;
+  margin: 10px 0;
+  font-weight: 600;
+}
+
+.confidence {
+  margin: 12px 0;
+  font-weight: 600;
+  color: #1f7a5c;
+}
+
+.budget-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.tab {
+  border: none;
+  padding: 8px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  background: #eee;
+  font-weight: 600;
+}
+
+.tab.active {
+  background: #1f7a5c;
+  color: white;
+}
+
+.product-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+}
+
+.product-list li {
+  background: #f4f7f6;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.chat-btn {
+  margin-top: 20px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  background: #1f7a5c;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
