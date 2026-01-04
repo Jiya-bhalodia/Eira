@@ -34,16 +34,11 @@ async function sendMessage() {
 
   const userText = input.value.trim();
   messages.innerHTML += `<div class="user-msg">${userText}</div>`;
-  
-  if (chatStep < stepKeys.length) {
-    userData[stepKeys[chatStep]] = userText;
-  }
-
-  input.value = "";
+  input.value = ""; // Clear input immediately for better UX
 
   try {
-    // UPDATED: Using relative path for Azure Deployment
-    const response = await fetch("https://eira-backend.onrender.com/analyze", {
+    // 1. CALL THE EXTRACTION ENDPOINT (Changed from /analyze to /extract)
+    const response = await fetch("https://eira-backend.onrender.com/extract", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text: userText })
@@ -51,22 +46,34 @@ async function sendMessage() {
 
     const extracted = await response.json();
 
+    // 2. UPDATE USER DATA WITH AI FINDINGS
     for (let key of stepKeys) {
-      if (extracted[key]) {
+      if (extracted[key] && extracted[key] !== "") {
         userData[key] = extracted[key];
       }
     }
+
+    // 3. FALLBACK: If AI didn't find anything, put text in the CURRENT step's slot
+    if (userData[stepKeys[chatStep]] === "") {
+        userData[stepKeys[chatStep]] = userText;
+    }
+
   } catch (err) {
     console.error("Entity extraction failed:", err);
+    // Even if AI fails, save the text so the chat continues
+    userData[stepKeys[chatStep]] = userText;
   }
 
+  // 4. SMART SKIP: Find the next empty slot
   const nextEmptyIndex = stepKeys.findIndex(key => userData[key] === "");
+  
   if (nextEmptyIndex !== -1) {
     chatStep = nextEmptyIndex;
   } else {
-    chatStep = chatQuestions.length; 
+    chatStep = chatQuestions.length; // All done!
   }
 
+  // 5. SHOW BOT RESPONSE
   setTimeout(() => {
     if (chatStep < chatQuestions.length) {
       messages.innerHTML += `<div class="bot-msg">${chatQuestions[chatStep]}</div>`;
