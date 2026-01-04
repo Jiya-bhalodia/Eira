@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory # Added send_from_directory
 from flask_cors import CORS
 import os
 import requests
@@ -6,14 +6,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = Flask(__name__)
+# 1. TELL FLASK WHERE YOUR FRONTEND FILES ARE
+# We assume they are in a folder named 'static'
+app = Flask(__name__, static_folder='static', static_url_path='')
 CORS(app)
 
+# 2. ADD THIS ROUTE TO SERVE YOUR WEBSITE
 @app.route("/")
 def home():
-    return "Eira backend running"
+    # This sends your index.html to the browser when you visit the URL
+    return send_from_directory(app.static_folder, 'index.html')
 
-#Vision helper
+# --- VISION HELPER ---
 def analyze_image(image_file):
     vision_endpoint = os.getenv("VISION_ENDPOINT").rstrip("/")
     vision_key = os.getenv("VISION_KEY")
@@ -25,7 +29,6 @@ def analyze_image(image_file):
     response = requests.post(url, params=params, headers=headers, data=image_bytes)
     response.raise_for_status()
     return response.json()
-
 
 @app.route("/analyze", methods=["POST"])
 def analyze():
@@ -44,7 +47,6 @@ def analyze():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# entities extraction helper
 @app.route("/extract", methods=["POST"])
 def extract_entities():
     data = request.json
@@ -62,7 +64,6 @@ def extract_entities():
 
     extracted = {"age": "", "skin_type": "", "concern": "", "budget": "", "allergies": ""}
 
-    #1. KEYWORD FALLBACK
     skin_types = ["oily", "dry", "combination", "sensitive"]
     for s in skin_types:
         if s in text: extracted["skin_type"] = s
@@ -75,7 +76,6 @@ def extract_entities():
     for c in concerns:
         if c in text: extracted["concern"] = c
 
-    #azure ai extraction
     try:
         response = requests.post(url, headers=headers, json=payload)
         if response.status_code == 200:
@@ -89,7 +89,6 @@ def extract_entities():
                 if cat in ["Age", "Quantity"] and any(char.isdigit() for char in val):
                     extracted["age"] = val
                 elif cat == "MedicalCondition":
-                    # If it's a condition but not in our main concerns, put it in allergies
                     if not extracted["concern"]:
                         extracted["concern"] = val
                     else:
@@ -100,7 +99,6 @@ def extract_entities():
     return jsonify(extracted)
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 3001))
-    app.run(host="0.0.0.0", port=port, debug=True)
-
-#    app.run(port=3001, debug=True)
+    # Azure likes Port 8000 or the environment PORT
+    port = int(os.environ.get("PORT", 8000))
+    app.run(host="0.0.0.0", port=port)
