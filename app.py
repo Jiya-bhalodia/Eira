@@ -17,8 +17,7 @@ LANG_ENDPOINT = (os.getenv("LANGUAGE_ENDPOINT") or "").strip().rstrip("/")
 
 @app.route("/")
 def home():
-    # Serves the index.html from your static folder
-    return send_from_directory(app.static_folder, 'index.html')
+    return "Eira backend running 🚀"
 
 # --- VISION HELPER ---
 def analyze_image(image_file):
