@@ -42,7 +42,8 @@ async function sendMessage() {
   input.value = "";
 
   try {
-    const response = await fetch("http://127.0.0.1:3001/extract", {
+    // UPDATED: Using relative path for Azure Deployment
+    const response = await fetch("/extract", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text: userText })
@@ -95,7 +96,8 @@ document.addEventListener("DOMContentLoaded", () => {
     resultBox.innerHTML = "🔍 Analyzing your skin...";
 
     try {
-      const response = await fetch("http://127.0.0.1:3001/analyze", {
+      // UPDATED: Using relative path for Azure Deployment
+      const response = await fetch("/analyze", {
         method: "POST",
         body: formData,
       });
@@ -104,30 +106,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const data = await response.json();
       
-      // Injecting the Tabbed UI back in
       resultBox.innerHTML = `
         <div class="result-card">
           <span class="severity-badge">${data.severity}</span>
           <h3>Skin Analysis Results</h3>
-
           <div class="condition-chip">${data.conditions[0]}</div>
-
           <p class="confidence">Confidence Score: ${Math.round(data.confidence * 100)}%</p>
-
           <h4>Personalized Skincare Plans</h4>
-
           <div class="budget-tabs">
             <button class="tab active" onclick="switchBudget('low', event)">💚 Low</button>
             <button class="tab" onclick="switchBudget('balanced', event)">💛 Balanced</button>
             <button class="tab" onclick="switchBudget('premium', event)">💜 Premium</button>
           </div>
-
           <ul id="productList" class="product-list">
             <li>Minimalist Salicylic Acid Cleanser</li>
             <li>Dot & Key Niacinamide Serum</li>
             <li>The Derma Co Sunscreen SPF 50</li>
           </ul>
-
           <button class="chat-btn" onclick="scrollToSection('chat')">
             💬 Continue in Chat
           </button>
@@ -135,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
     } catch (err) {
       console.error(err);
-      resultBox.innerHTML = "⚠️ Backend not reachable. Make sure Flask is running.";
+      resultBox.innerHTML = "⚠️ Analysis failed. Check if the server is running.";
     }
   });
 });
@@ -160,13 +155,11 @@ function switchBudget(type, event) {
     ]
   };
 
-  // Update active tab styling
   document.querySelectorAll(".tab").forEach(btn => btn.classList.remove("active"));
   if (event) {
     event.target.classList.add("active");
   }
 
-  // Update product list
   const list = document.getElementById("productList");
   if (list) {
     list.innerHTML = products[type].map(p => `<li>${p}</li>`).join("");
