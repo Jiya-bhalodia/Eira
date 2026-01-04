@@ -19,7 +19,9 @@ def home():
 
 # --- VISION HELPER ---
 def analyze_image(image_file):
-    vision_endpoint = os.getenv("VISION_ENDPOINT").rstrip("/")
+    # vision_endpoint = os.getenv("VISION_ENDPOINT").rstrip("/")
+    endpoint_raw = os.getenv("VISION_ENDPOINT")
+    vision_endpoint = endpoint_raw.rstrip("/") if endpoint_raw else ""
     vision_key = os.getenv("VISION_KEY")
     url = f"{vision_endpoint}/vision/v3.2/analyze"
     params = {"visualFeatures": "Tags"}
