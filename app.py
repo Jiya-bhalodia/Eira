@@ -6,15 +6,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# 1. TELL FLASK WHERE YOUR FRONTEND FILES ARE
-# We assume they are in a folder named 'static'
 app = Flask(__name__, static_folder='static', static_url_path='')
 CORS(app)
 
-# 2. ADD THIS ROUTE TO SERVE YOUR WEBSITE
+# SAFE LOADING - Prevents 'NoneType' errors during startup
+VISION_KEY = os.getenv("VISION_KEY")
+VISION_ENDPOINT = (os.getenv("VISION_ENDPOINT") or "").strip().rstrip("/")
+LANG_KEY = os.getenv("LANGUAGE_KEY")
+LANG_ENDPOINT = (os.getenv("LANGUAGE_ENDPOINT") or "").strip().rstrip("/")
+
 @app.route("/")
 def home():
-    # This sends your index.html to the browser when you visit the URL
+    # Serves the index.html from your static folder
     return send_from_directory(app.static_folder, 'index.html')
 
 # --- VISION HELPER ---
