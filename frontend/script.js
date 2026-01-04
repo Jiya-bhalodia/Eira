@@ -43,7 +43,7 @@ async function sendMessage() {
 
   try {
     // UPDATED: Using relative path for Azure Deployment
-    const response = await fetch("/extract", {
+    const response = await fetch("https://eira-backend.onrender.com/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text: userText })
@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       // UPDATED: Using relative path for Azure Deployment
-      const response = await fetch("/analyze", {
+      const response = await fetch("https://eira-backend.onrender.com/analyze", {
         method: "POST",
         body: formData,
       });
