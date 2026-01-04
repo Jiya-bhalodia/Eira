@@ -1,4 +1,4 @@
-//CHAT STATE
+// Chat state
 let chatStep = 0;
 let userData = {
   age: "",
@@ -9,22 +9,24 @@ let userData = {
   allergies: ""
 };
 
+const stepKeys = ["age", "skin_type", "concern", "budget", "routine", "allergies"];
+
 const chatQuestions = [
   "😊 Great! First, how old are you?",
   "🧴 What is your skin type? (oily / dry / combination / sensitive)",
-  "😣 What’s your main skin concern(acne,dryness,dullness)?",
-  "💰 What’s your budget? (low / balanced / premium)",
+  "😣 What's your main skin concern (acne, pigmentation, dullness)?",
+  "💰 What's your budget? (low / balanced / premium)",
   "🧼 Can you describe your current skincare routine?",
   "🚫 Do you have any allergies or ingredient sensitivities?"
 ];
 
-//SCROLL
+// Scroll to section
 function scrollToSection(id) {
   document.getElementById(id).scrollIntoView({ behavior: "smooth" });
 }
 
-//CHAT
-function sendMessage() {
+// Chat logic
+async function sendMessage() {
   const input = document.getElementById("userInput");
   const messages = document.getElementById("chatMessages");
 
@@ -32,19 +34,41 @@ function sendMessage() {
 
   const userText = input.value.trim();
   messages.innerHTML += `<div class="user-msg">${userText}</div>`;
+  
+  if (chatStep < stepKeys.length) {
+    userData[stepKeys[chatStep]] = userText;
+  }
+
   input.value = "";
 
-  // Save answers step-by-step
-  if (chatStep === 0) userData.age = userText;
-  if (chatStep === 1) userData.skin_type = userText;
-  if (chatStep === 2) userData.concern = userText;
-  if (chatStep === 3) userData.budget = userText;
-  if (chatStep === 4) userData.routine = userText;
-  if (chatStep === 5) userData.allergies = userText;
+  try {
+    const response = await fetch("http://127.0.0.1:3001/extract", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: userText })
+    });
+
+    const extracted = await response.json();
+
+    for (let key of stepKeys) {
+      if (extracted[key]) {
+        userData[key] = extracted[key];
+      }
+    }
+  } catch (err) {
+    console.error("Entity extraction failed:", err);
+  }
+
+  const nextEmptyIndex = stepKeys.findIndex(key => userData[key] === "");
+  if (nextEmptyIndex !== -1) {
+    chatStep = nextEmptyIndex;
+  } else {
+    chatStep = chatQuestions.length; 
+  }
 
   setTimeout(() => {
-    if (chatStep < chatQuestions.length - 1) {
-      messages.innerHTML += `<div class="bot-msg">${chatQuestions[++chatStep]}</div>`;
+    if (chatStep < chatQuestions.length) {
+      messages.innerHTML += `<div class="bot-msg">${chatQuestions[chatStep]}</div>`;
     } else {
       messages.innerHTML += generateRoutine();
     }
@@ -52,7 +76,7 @@ function sendMessage() {
   }, 600);
 }
 
-//IMAGE ANALYSIS
+// Image analysis logic
 document.addEventListener("DOMContentLoaded", () => {
   const analyzeButton = document.getElementById("analyzeBtn");
   const imageInput = document.getElementById("imageInput");
@@ -68,8 +92,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const formData = new FormData();
     formData.append("image", imageInput.files[0]);
-
-    //Loading state
     resultBox.innerHTML = "🔍 Analyzing your skin...";
 
     try {
@@ -78,47 +100,39 @@ document.addEventListener("DOMContentLoaded", () => {
         body: formData,
       });
 
-      if (!response.ok) {
-        throw new Error("Server error");
-      }
+      if (!response.ok) throw new Error("Server error");
 
       const data = await response.json();
-
-      if (data.error) {
-        resultBox.innerHTML = "❌ " + data.error;
-        return;
-      }
-
-      //Display results
+      
+      // Injecting the Tabbed UI back in
       resultBox.innerHTML = `
-  <div class="result-card">
-    <span class="severity-badge">${data.severity}</span>
-    <h3>Skin Analysis Results</h3>
+        <div class="result-card">
+          <span class="severity-badge">${data.severity}</span>
+          <h3>Skin Analysis Results</h3>
 
-    <div class="condition-chip">${data.conditions[0]}</div>
+          <div class="condition-chip">${data.conditions[0]}</div>
 
-    <p class="confidence">Confidence Score: ${Math.round(data.confidence * 100)}%</p>
+          <p class="confidence">Confidence Score: ${Math.round(data.confidence * 100)}%</p>
 
-    <h4>Personalized Skincare Plans</h4>
+          <h4>Personalized Skincare Plans</h4>
 
-    <div class="budget-tabs">
-      <button class="tab active" onclick="switchBudget('low')">💚 Low</button>
-      <button class="tab" onclick="switchBudget('balanced')">💛 Balanced</button>
-      <button class="tab" onclick="switchBudget('premium')">💜 Premium</button>
-    </div>
+          <div class="budget-tabs">
+            <button class="tab active" onclick="switchBudget('low', event)">💚 Low</button>
+            <button class="tab" onclick="switchBudget('balanced', event)">💛 Balanced</button>
+            <button class="tab" onclick="switchBudget('premium', event)">💜 Premium</button>
+          </div>
 
-    <ul id="productList" class="product-list">
-      <li>Minimalist Salicylic Acid Cleanser</li>
-      <li>Dot & Key Niacinamide Serum</li>
-      <li>The Derma Co Sunscreen SPF 50</li>
-    </ul>
+          <ul id="productList" class="product-list">
+            <li>Minimalist Salicylic Acid Cleanser</li>
+            <li>Dot & Key Niacinamide Serum</li>
+            <li>The Derma Co Sunscreen SPF 50</li>
+          </ul>
 
-    <button class="chat-btn" onclick="scrollToSection('chat')">
-      💬 Continue in Chat
-    </button>
-  </div>
-`;
-
+          <button class="chat-btn" onclick="scrollToSection('chat')">
+            💬 Continue in Chat
+          </button>
+        </div>
+      `;
     } catch (err) {
       console.error(err);
       resultBox.innerHTML = "⚠️ Backend not reachable. Make sure Flask is running.";
@@ -126,8 +140,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-//BUDGET TABS
-function switchBudget(type) {
+// Budget tab switching
+function switchBudget(type, event) {
   const products = {
     low: [
       "Minimalist Salicylic Acid Cleanser",
@@ -146,48 +160,37 @@ function switchBudget(type) {
     ]
   };
 
+  // Update active tab styling
   document.querySelectorAll(".tab").forEach(btn => btn.classList.remove("active"));
-  event.target.classList.add("active");
+  if (event) {
+    event.target.classList.add("active");
+  }
 
+  // Update product list
   const list = document.getElementById("productList");
-  list.innerHTML = products[type].map(p => `<li>${p}</li>`).join("");
+  if (list) {
+    list.innerHTML = products[type].map(p => `<li>${p}</li>`).join("");
+  }
 }
 
-//ROUTINE GENERATOR
+// Routine 
 function generateRoutine() {
   const plans = {
-    low: {
-      cleanser: "Simple Refreshing Face Wash",
-      moisturizer: "Pond’s Super Light Gel",
-      sunscreen: "Aqualogica SPF 50"
-    },
-    balanced: {
-      cleanser: "CeraVe Foaming Cleanser",
-      moisturizer: "Cetaphil Moisturising Cream",
-      sunscreen: "La Roche-Posay Anthelios"
-    },
-    premium: {
-      cleanser: "Skinceuticals Gentle Cleanser",
-      moisturizer: "Clinique Moisture Surge",
-      sunscreen: "EltaMD UV Clear SPF 46"
-    }
+    low: { cleanser: "Simple Refreshing Face Wash", moisturizer: "Pond's Super Light Gel", sunscreen: "Aqualogica SPF 50" },
+    balanced: { cleanser: "CeraVe Foaming Cleanser", moisturizer: "Cetaphil Moisturising Cream", sunscreen: "La Roche-Posay Anthelios" },
+    premium: { cleanser: "Skinceuticals Gentle Cleanser", moisturizer: "Clinique Moisture Surge", sunscreen: "EltaMD UV Clear SPF 46" }
   };
 
-  const p = plans[userData.budget.toLowerCase()] || plans.balanced;
+  const budgetKey = (userData.budget || "balanced").toLowerCase();
+  const p = plans[budgetKey] || plans.balanced;
 
   return `
     <div class="bot-msg">
-      🌿 Thanks for sharing! Based on your skin, routine & budget, here’s what I recommend:
-
+      🌿 Thanks for sharing! Based on your skin, routine & budget, here's what I recommend:
       <br><br>🧼 <b>Cleanser:</b> ${p.cleanser}
       <br>🧴 <b>Moisturizer:</b> ${p.moisturizer}
       <br>☀️ <b>Sunscreen:</b> ${p.sunscreen}
-
-      <br><br>
-      ⚠️ I’ve noted your allergies: <i>${userData.allergies || "None"}</i>
-
-      <br><br>
-      Would you like an **AM / PM routine** or **product alternatives**? 😊
+      <br><br>⚠️ I've noted your allergies: <i>${userData.allergies || "None"}</i>
     </div>
   `;
 }
