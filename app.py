@@ -15,7 +15,7 @@ def home():
 
 #Vision helper
 def analyze_image(image_file):
-    vision_endpoint = os.getenv("VISION_ENDPOINT").strip("/")
+    vision_endpoint = os.getenv("VISION_ENDPOINT").rstrip("/")
     vision_key = os.getenv("VISION_KEY")
     url = f"{vision_endpoint}/vision/v3.2/analyze"
     params = {"visualFeatures": "Tags"}
@@ -50,7 +50,7 @@ def extract_entities():
     data = request.json
     text = data.get("text", "").lower()
 
-    endpoint = os.getenv("LANGUAGE_ENDPOINT").strip("/")
+    endpoint = os.getenv("LANGUAGE_ENDPOINT").rstrip("/")
     key = os.getenv("LANGUAGE_KEY")
     url = f"{endpoint}/language/:analyze-text?api-version=2023-04-01"
     
